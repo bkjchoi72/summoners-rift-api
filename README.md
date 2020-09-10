@@ -1,4 +1,4 @@
-# summoners_rift_api
+# summoners-rift-api
 This service allows you to add/get/update/remove champions via RESTful API.
 
 ## Endpoints

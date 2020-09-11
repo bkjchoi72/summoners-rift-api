@@ -36,6 +36,7 @@ Payload Examples:
 - {"name": "ashe", "type": "marksman", "roles":["adc", "support"]}
 
 Expected users: <100
+Number of champions: <200
 
 Method of communication:
 - HTTP protocol
@@ -80,3 +81,31 @@ Negative cases
     - {"message": "Champion with ID \"xx\" does not exist"}
 - DELETE /champion/id non-existing champion returns 404
     - {"message": "Champion with ID \"xx\" does not exist"}
+
+
+Data Models
+- Champion
+{
+    "id": "0",
+    "name": "tryndamere",
+    "type": "fighter",
+    "roles" ["top"],
+}
+
+DB Tables
+
+Table: champions
+(primary key) id int
+name string
+type string
+
+Table: roles
+(primary key) id int
+name string
+
+
+Table: champion_roles
+champion_id: int
+role_id: int
+
+

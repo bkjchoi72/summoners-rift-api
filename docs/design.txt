@@ -1,0 +1,82 @@
+Goal: Service that allows adding/getting/removing/updating champions. In addition, it supports GET /random-team that returns a team of 5 champions ({"jungle":<champ 1 info>, "adc":<champ 2 info>...})that fill all the required roles of Summoners Rift
+
+Supported endpoints:
+- POST /champion
+    - Create and store a champion
+    - Return the ID of the champion that was created
+- GET /champion/id
+    - Get details about a champion by ID
+    - Response example: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]} 200
+- PUT /champion/id
+    - Create a new or update existing champion by ID
+    - Response example for successful create: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]} 201
+    - Response example for successful update: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]} 200
+- DELETE /champion/id
+    - Delete a champion by id
+    - Return an empty response with 204
+- GET /champion?type=
+    - Get all champions of a given type
+- GET /champion?role=
+    - Get all champions of a given role
+- GET /random-team
+    - Return a team of 5 champions ({"jungle":<champ 1 info>, "adc":<champ 2 info>...})that fill all the required roles of Summoners Rift
+    - positions: top, middle, adc, support, jungle
+
+Other requirements:
+- Listen and serve on localhost:8080
+- Return 404 PAGE NOT FOUND on non-defined routes
+- Return 405 METHOD NOT ALLOED for defined routes and incorrect HTTP method types (invalid POST/PUT/PATCH/GET)
+- Champions stored in a local database (sqlite3)
+- Results returned as JSON. Other content-types return error
+- Authenticate using a basic Authenticate
+- Implement at least one middleware (for caching?)
+
+Payload Examples:
+- {"name": "zed", "type": "assassin", "roles":["middle"]}
+- {"name": "ashe", "type": "marksman", "roles":["adc", "support"]}
+
+Expected users: <100
+
+Method of communication:
+- HTTP protocol
+- JSON
+
+Test Cases:
+Positive cases
+- POST /champion with a valid payload returns 201
+    - Payload example: {"name": "ashe", "type": "marksman", "roles":["adc", "support"]}
+    - Response example: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]}
+- POST /champion with a valid payload with extra field returns 201
+    - Payload example: {"name": "ashe", "type": "marksman", "roles":["adc", "support"], "some_random_field": "hello"}
+    - Response example: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]} 201
+- POST /champion generates a new unique ID for the champion
+    - Payload example: {"name": "ashe", "type": "marksman", "roles":["adc", "support"]}
+    - Response example: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]} 201
+    - Payload example: {"name": "zed", "type": "assassin", "roles":["middle"]}
+    - Response example: {"id": 1, "name": "zed", "type": "assassin", "roles":["middle"]} 201
+- GET /champion/id returns the champion associated with the ID with 200
+    - Response example: {"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]}
+- DELETE /champion/id deletes the champion associated with the ID from the database with 204 NO CONTENT
+- GET /champion?type= returns all champions of the specified type with 200
+     - Response example: {"champions": [{"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]}, {"id": 1, "name": "miss fortune", "type": "marksman", "roles":["adc"]}]}
+- GET /champion?role= returns all champions of the specified role with 200
+- GET /champion?type= with no match returns 204
+- GET /champion?role= with no match returns 204
+- GET /random returns a random team of 5 champions that fill all the required roles of Summoners Rift with 200
+    - Response example: {"jungle":{"id": 4, "name": "graves", "type": "marksman", "roles":["jungle"]}, "adc":{"id": 0, "name": "ashe", "type": "marksman", "roles":["adc", "support"]}, ...}
+- GET /random without enough champions to fill all the roles returns 204
+- PUT /champion/id of a new champion creates the champion with 201
+- PUT /champion/id of existing champion updates the champion with 200
+Negative cases
+- POST /champion with missing required field returns 400
+    - {"message": "Required field \"xxx\" is missing"}
+- Invalid HTTP method returns 405 METHOD NOT ALLOWED
+    - /champion/id
+    - /ramdon
+    - /champion?type=
+    - /champion?role=
+    - {"message": "Method \"xxx\" is not supported"}
+- GET /champion/id of non-existing champion returns 404
+    - {"message": "Champion with ID \"xx\" does not exist"}
+- DELETE /champion/id non-existing champion returns 404
+    - {"message": "Champion with ID \"xx\" does not exist"}
